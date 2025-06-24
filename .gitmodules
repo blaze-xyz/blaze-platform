@@ -1,0 +1,21 @@
+[submodule "spark"]
+	path = spark
+	url = https://github.com/blaze-xyz/spark.git
+[submodule "app"]
+	path = app
+	url = https://github.com/blaze-xyz/blaze.git
+[submodule "cinder"]
+	path = cinder
+	url = https://github.com/blaze-xyz/cinder.git
+[submodule "website"]
+	path = website
+	url = https://github.com/blaze-xyz/website.git
+[submodule "kindling"]
+	path = kindling
+	url = https://github.com/blaze-xyz/kindling.git
+[submodule "deploy-notes-action"]
+	path = deploy-notes-action
+	url = https://github.com/blaze-xyz/deploy-notes-action.git
+[submodule "dlocal-signature"]
+	path = dlocal-signature
+	url = https://github.com/blaze-xyz/dlocal-signature.git
