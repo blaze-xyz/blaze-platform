@@ -112,9 +112,12 @@ yarn build          # Production build
 
 ### Quick Setup
 ```bash
-# Clone the repository
-git clone https://github.com/blaze-xyz/blaze-platform.git
+# Clone the repository with all submodules
+git clone --recurse-submodules https://github.com/blaze-xyz/blaze-platform.git
 cd blaze-platform
+
+# If already cloned without submodules, initialize them:
+# git submodule update --init --recursive
 
 # Install dependencies across all projects
 yarn install
@@ -122,6 +125,8 @@ yarn install
 # Start the full development stack
 yarn dev:all
 ```
+
+> **⚠️ Important**: This repository uses git submodules. Always use `--recurse-submodules` when cloning, or run `git submodule update --init --recursive` if already cloned.
 
 ### Individual Project Setup
 Each project can be developed independently:
