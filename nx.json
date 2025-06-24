@@ -1,0 +1,29 @@
+{
+  "installation": {
+    "version": "21.2.1"
+  },
+  "workspaceLayout": {
+    "projectsDir": "."
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    }
+  },
+  "projects": {
+    "spark": "spark",
+    "app": "app", 
+    "cinder": "cinder",
+    "website": "website",
+    "kindling": "kindling",
+    "issue-solver": "issue-solver",
+    "dlocal-signature": "dlocal-signature",
+    "deploy-notes-action": "deploy-notes-action"
+  }
+}
