@@ -278,6 +278,83 @@ Comprehensive admin tools for payment monitoring and user management
 ### 🔗 Developer-Friendly APIs
 GraphQL APIs with comprehensive documentation and type safety
 
+## 🚀 Migration to True Monorepo
+
+### Current Status
+This repository currently uses **git submodules** to manage individual projects. This preserves each project's independent history and CI/CD pipelines while providing monorepo benefits through Nx.
+
+### Migration Strategy
+When ready to convert to a true monorepo (removing nested `.git` directories), follow this phased approach:
+
+#### **Phase 1: Preparation**
+```bash
+# Create migration branch
+git checkout -b migration/true-monorepo
+
+# Document current CI/CD workflows
+# Backup important branches from each submodule
+# Test Nx commands work with current setup
+```
+
+#### **Phase 2: CI/CD Path-Based Migration**
+Update existing workflows to work with monorepo paths:
+
+```yaml
+# .github/workflows/spark-ci.yml (example)
+name: Spark CI
+on:
+  push:
+    paths: ['spark/**']
+    branches: [main, develop]
+  pull_request:
+    paths: ['spark/**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./spark
+    # ... rest of existing workflow
+```
+
+#### **Phase 3: History Consolidation**
+```bash
+# Option A: Preserve history with git subtree
+git subtree add --prefix=spark-backup spark/ main --squash
+
+# Option B: Clean migration (simpler, loses individual history)
+# Remove .git directories and commit as unified repo
+```
+
+#### **Phase 4: Nx Optimization**
+```bash
+# Use Nx affected detection for efficiency
+npx nx affected -t test,build,lint
+
+# Implement unified workflows where beneficial
+npx nx run-many -t build
+```
+
+### **Key Benefits of Migration**
+- ✅ **Unified versioning** across all projects
+- ✅ **Atomic commits** spanning multiple projects
+- ✅ **Simplified dependency management**
+- ✅ **Enhanced Nx caching** and affected detection
+- ✅ **Streamlined CI/CD** with better build optimization
+
+### **Migration Considerations**
+- **React Native**: Expo builds need careful working directory handling
+- **Backend**: Docker contexts and database migrations require path updates
+- **Web Apps**: Build configurations and deployment paths need adjustment
+- **Gradual Adoption**: Teams can migrate CI/CD at their own pace
+
+### **Recommended Order**
+1. **Website** (simplest deployment)
+2. **Cinder** (admin dashboard)
+3. **Spark** (backend API)
+4. **App** (most complex with mobile-specific CI/CD)
+
 ## 📞 Support
 
 - **Documentation**: Comprehensive guides in each project directory
