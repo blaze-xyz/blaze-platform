@@ -9,7 +9,7 @@
 	url = git@github.com:blaze-xyz/cinder.git
 [submodule "website"]
 	path = website
-	url = git@github.com:blaze-xyz/website.git
+	url = git@github.com:blaze-xyz/blaze-site.git
 [submodule "kindling"]
 	path = kindling
 	url = git@github.com:blaze-xyz/kindling.git
