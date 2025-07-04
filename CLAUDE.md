@@ -22,16 +22,18 @@ The monorepo consists of these key projects:
 
 **Always use git worktrees when working on new features or issues.** This ensures clean separation between different development tasks and prevents branch conflicts when working on multiple issues simultaneously.
 
+All worktrees should be created in the `worktrees/` folder to keep the workspace organized and avoid conflicts.
+
 ### Worktree Commands
 ```bash
-# Create a new worktree for a feature/issue
-git worktree add ../blaze-feature-name feature/branch-name
+# Create a new worktree for a feature/issue in the dedicated worktrees folder
+git worktree add worktrees/feature-name feature/branch-name
 
 # List existing worktrees
 git worktree list
 
 # Remove a worktree when work is complete
-git worktree remove ../blaze-feature-name
+git worktree remove worktrees/feature-name
 git worktree prune
 ```
 
