@@ -18,6 +18,31 @@ The monorepo consists of these key projects:
 - **deploy-notes-action/** - GitHub Action for deploy notes
 - **dlocal-signature/** - Evervault cage function for payment security
 
+## Git Worktree Workflow
+
+**Always use git worktrees when working on new features or issues.** This ensures clean separation between different development tasks and prevents branch conflicts when working on multiple issues simultaneously.
+
+### Worktree Commands
+```bash
+# Create a new worktree for a feature/issue
+git worktree add ../blaze-feature-name feature/branch-name
+
+# List existing worktrees
+git worktree list
+
+# Remove a worktree when work is complete
+git worktree remove ../blaze-feature-name
+git worktree prune
+```
+
+### Workflow Pattern
+1. **Start new work**: Create a worktree for each new feature/issue
+2. **Develop**: Work in the isolated worktree directory
+3. **Complete**: Merge/submit PR from the worktree
+4. **Cleanup**: Delete the worktree once work is finished
+
+This allows multiple Claude Code instances to work on different issues simultaneously without branch conflicts.
+
 ## Common Commands
 
 ### Backend (Spark)
@@ -110,11 +135,16 @@ npx nx graph                # View dependency graph
 
 ## Standard Workflow
 
-1. First think through the problem, read the codebase for relevant files, and write a plan to tasks/todo.md.
-2. The plan should have a list of todo items that you can check off as you complete them
-3. Before you begin working, check in with me and I will verify the plan.
-4. Then, begin working on the todo items, marking them as complete as you go.
-5. Please every step of the way just give me a high level explanation of what changes you made
-6. Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.
-7. Finally, add a review section to the todo.md file with a summary of the changes you made and any other relevant information.
-8. When making commits in the cinder repository (either for new pull requests or adding to existing ones), always specify the user you are working with as the commit author. If the author hasn't been specified in the current session, ask for their GitHub email address. Once provided, remember it for the session and use it for all commits to ensure Vercel can automatically create builds.
+1. **Create a worktree**: Start by creating a new git worktree for the feature/issue you're working on
+2. **Plan the work**: Think through the problem, read the codebase for relevant files, and write a plan to tasks/todo.md
+3. **Get approval**: The plan should have a list of todo items. Check in with me to verify the plan before beginning work
+4. **Execute**: Work on the todo items in the isolated worktree, marking them as complete as you go
+5. **Communicate progress**: Give high-level explanations of changes made at each step
+6. **Keep it simple**: Make every task and code change as simple as possible, impacting as little code as possible
+7. **Review and summarize**: Add a review section to the todo.md file with a summary of changes and relevant information
+8. **Commit with proper attribution**: When making commits (especially in cinder), always specify the user as the commit author using their GitHub email
+9. **Cleanup**: Once work is complete and merged, delete the worktree to keep the workspace clean
+
+## Commit Attribution
+
+When making commits in the cinder repository (either for new pull requests or adding to existing ones), always specify the user you are working with as the commit author. If the author hasn't been specified in the current session, ask for their GitHub email address. Once provided, remember it for the session and use it for all commits to ensure Vercel can automatically create builds.
