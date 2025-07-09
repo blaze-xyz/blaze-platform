@@ -1,0 +1,148 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug Production API (Docker)",
+        "type": "node",
+        "request": "attach",
+        "address": "localhost",
+        "port": 9229,
+        "localRoot": "${workspaceFolder}/src",
+        "remoteRoot": "/app/src",
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "restart": true,
+        "trace": true,
+        "sourceMaps": true,
+        "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+        "resolveSourceMapLocations": [
+          "${workspaceFolder}/**",
+          "!**/node_modules/**"
+        ]
+      },
+      {
+        "name": "Debug Local Development",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/src/main.ts",
+        "args": [],
+        "runtimeArgs": [
+          "-r",
+          "ts-node/register",
+          "-r",
+          "tsconfig-paths/register"
+        ],
+        "envFile": "${workspaceFolder}/.env.development",
+        "sourceMaps": true,
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "skipFiles": [
+          "<node_internals>/**"
+        ]
+      },
+      {
+        "type": "node",
+        "name": "vscode-jest-tests.v2.spark",
+        "request": "launch",
+        "args": [
+          "test",
+          "--runInBand",
+          "--watchAll=false",
+          "--testNamePattern",
+          "${jest.testNamePattern}",
+          "--runTestsByPath",
+          "${jest.testFile}"
+        ],
+        "cwd": "/Users/luc/Projects/blaze/spark",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "disableOptimisticBPs": true,
+        "runtimeExecutable": "yarn"
+      },
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "🐳 Debug Docker API",
+        "port": 9229,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/app",
+        "restart": true,
+        "sourceMaps": true,
+        "skipFiles": ["<node_internals>/**"],
+        "timeout": 30000,
+        "presentation": {
+          "group": "Docker Debug",
+          "order": 1
+        }
+      },
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "🐳 Debug Docker Worker-User",
+        "port": 9230,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/app",
+        "restart": true,
+        "sourceMaps": true,
+        "skipFiles": ["<node_internals>/**"],
+        "presentation": {
+          "group": "Docker Debug",
+          "order": 2
+        }
+      },
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "🐳 Debug Docker Worker-Communication",
+        "port": 9232,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/app",
+        "restart": true,
+        "sourceMaps": true,
+        "skipFiles": ["<node_internals>/**"],
+        "presentation": {
+          "group": "Docker Debug",
+          "order": 3
+        }
+      },
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "🐳 Debug Docker Worker-Ramp",
+        "port": 9233,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/app",
+        "restart": true,
+        "sourceMaps": true,
+        "skipFiles": ["<node_internals>/**"],
+        "timeout": 30000,
+        "presentation": {
+          "group": "Docker Debug",
+          "order": 4
+        }
+      },
+      {
+        "type": "node",
+        "request": "attach",
+        "name": "🐳 Debug Docker Cron",
+        "port": 9231,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/app",
+        "restart": true,
+        "sourceMaps": true,
+        "skipFiles": ["<node_internals>/**"],
+        "timeout": 30000,
+        "presentation": {
+          "group": "Docker Debug",
+          "order": 5
+        }
+      }
+    ]
+  }
+  

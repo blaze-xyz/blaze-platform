@@ -20,7 +20,7 @@
             }
         },
         "RadonAi": {
-          "url": "http://127.0.0.1:58859/mcp",
+          "url": "http://127.0.0.1:57680/mcp",
           "type": "http"
         }
     }
