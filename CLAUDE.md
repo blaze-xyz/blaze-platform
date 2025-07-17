@@ -22,11 +22,13 @@ The monorepo consists of these key projects:
 
 **Always use git worktrees when working on new features or issues.** This ensures clean separation between different development tasks and prevents branch conflicts when working on multiple issues simultaneously.
 
-All worktrees should be created in the `worktrees/` folder to keep the workspace organized and avoid conflicts.
+Worktrees should be created at the submodule level in each project's dedicated `worktrees/` folder to keep the workspace organized and avoid conflicts.
 
 ### Worktree Commands
+
 ```bash
-# Create a new worktree for a feature/issue in the dedicated worktrees folder
+# Create a new worktree for a feature/issue in the specific project's worktrees folder
+cd spark  # or app, cinder, website, etc.
 git worktree add worktrees/feature-name feature/branch-name
 
 # List existing worktrees
@@ -38,16 +40,18 @@ git worktree prune
 ```
 
 ### Workflow Pattern
-1. **Start new work**: Create a worktree for each new feature/issue
-2. **Develop**: Work in the isolated worktree directory
+
+1. **Start new work**: Create a worktree in the relevant submodule for each new feature/issue
+2. **Develop**: Work in the isolated worktree directory within the specific project
 3. **Complete**: Merge/submit PR from the worktree
 4. **Cleanup**: Delete the worktree once work is finished
 
-This allows multiple Claude Code instances to work on different issues simultaneously without branch conflicts.
+This allows multiple Claude Code instances to work on different issues simultaneously without branch conflicts, with each worktree isolated to its specific project.
 
 ## Common Commands
 
 ### Backend (Spark)
+
 ```bash
 cd spark
 yarn build              # Build application
@@ -58,6 +62,7 @@ yarn lint               # ESLint with fix
 ```
 
 ### Mobile (App)
+
 ```bash
 cd app
 yarn start              # Start Expo dev server
@@ -69,6 +74,7 @@ yarn test:e2e           # Maestro E2E tests
 ```
 
 ### Admin (Cinder)
+
 ```bash
 cd cinder
 yarn dev                # Start Next.js dev (port 3001)
@@ -78,6 +84,7 @@ yarn graphql:generate   # Generate GraphQL types
 ```
 
 ### Website
+
 ```bash
 cd website
 yarn dev                # Start Next.js dev (port 3001)
@@ -87,6 +94,7 @@ yarn graphql:generate   # Generate GraphQL types
 ```
 
 ### Monorepo-wide (Nx)
+
 ```bash
 npx nx run-many -t build    # Build all projects
 npx nx run-many -t test     # Test all projects
@@ -113,7 +121,8 @@ npx nx graph                # View dependency graph
 
 1. **TypeScript**: Strict TypeScript across all projects. Follow existing patterns for type definitions.
 
-2. **Testing**: 
+2. **Testing**:
+
    - Unit tests required for new features
    - Integration tests for API endpoints
    - E2E tests for critical user flows
@@ -126,8 +135,6 @@ npx nx graph                # View dependency graph
 
 6. **Git Submodules**: Remember to run `git submodule update --init --recursive` after cloning. Each submodule maintains its own git history.
 
-7. **Worker Modules**: All worker modules must use `getBaseWorkerImports()` from `spark/src/workers/shared/base.worker.module.ts` to ensure consistent configuration including BetterStack logging, database access, and global configuration. Use `getBaseWorkerImportsWithoutQueue()` for workers with custom queue configuration.
-
 ## Important Files to Review
 
 - `.cursor/rules/` - AI development guidelines for each project
@@ -139,15 +146,16 @@ npx nx graph                # View dependency graph
 
 ## Standard Workflow
 
-1. **Create a worktree**: Start by creating a new git worktree for the feature/issue you're working on
+1. **Create a worktree**: Start by creating a new git worktree in the relevant submodule for the feature/issue you're working on
 2. **Plan the work**: Think through the problem, read the codebase for relevant files, and write a plan to tasks/todo.md
-3. **Get approval**: The plan should have a list of todo items. Check in with me to verify the plan before beginning work
+3. **Get approval**: The plan should have a list of todo items that you can check off as you complete them. Check in with me to verify the plan before beginning work
 4. **Execute**: Work on the todo items in the isolated worktree, marking them as complete as you go
 5. **Communicate progress**: Give high-level explanations of changes made at each step
-6. **Keep it simple**: Make every task and code change as simple as possible, impacting as little code as possible
-7. **Review and summarize**: Add a review section to the todo.md file with a summary of changes and relevant information
-8. **Commit with proper attribution**: When making commits (especially in cinder), always specify the user as the commit author using their GitHub email
-9. **Cleanup**: Once work is complete and merged, delete the worktree to keep the workspace clean
+6. **Keep it simple**: Make every task and code change as simple as possible, impacting as little code as possible. Everything is about simplicity
+7. **Clean up code**: After completing all tasks, analyze the modified files and related modules for unused methods or dead code, and clean them up to maintain code quality
+8. **Review and summarize**: Add a review section to the todo.md file with a summary of the changes you made and any other relevant information
+9. **Commit with proper attribution**: When making commits (especially in cinder), always specify the user as the commit author using their GitHub email
+10. **Cleanup**: Once work is complete and merged, delete the worktree to keep the workspace clean
 
 ## Commit Attribution
 
