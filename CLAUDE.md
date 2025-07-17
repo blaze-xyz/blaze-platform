@@ -156,7 +156,3 @@ npx nx graph                # View dependency graph
 8. **Review and summarize**: Add a review section to the todo.md file with a summary of the changes you made and any other relevant information
 9. **Commit with proper attribution**: When making commits (especially in cinder), always specify the user as the commit author using their GitHub email
 10. **Cleanup**: Once work is complete and merged, delete the worktree to keep the workspace clean
-
-## Commit Attribution
-
-When making commits in the cinder repository (either for new pull requests or adding to existing ones), always specify the user you are working with as the commit author. If the author hasn't been specified in the current session, ask for their GitHub email address. Once provided, remember it for the session and use it for all commits to ensure Vercel can automatically create builds.
