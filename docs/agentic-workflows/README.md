@@ -52,6 +52,40 @@ Bug Detection → Analysis → Fix Generation → Validation → Deployment → 
    Sentry     Root Cause   Minimal Fix   Test Suite   Hotfix    Post-Deploy
 ```
 
+## 🔧 Implementation Options
+
+### Option 1: Direct Code Implementation
+Build the orchestration layer directly in your codebase using TypeScript/Node.js. Best for teams wanting full control and customization.
+
+**Pros:**
+- Complete control over implementation
+- Direct integration with existing code
+- No additional infrastructure
+
+**Cons:**
+- More development effort
+- Harder to modify workflows
+- Custom monitoring needed
+
+### Option 2: n8n Workflow Automation (Recommended)
+Use [n8n](https://n8n.io) as the orchestration layer for visual workflow design and management.
+
+**Pros:**
+- Visual workflow builder
+- Easy to modify without code changes
+- Built-in error handling and retries
+- Extensive integrations out of the box
+- Self-hosted with full data control
+
+**Cons:**
+- Additional infrastructure to manage
+- Learning curve for n8n
+
+**📚 n8n Implementation Resources:**
+- **[n8n Implementation Guide](./n8n-implementation.md)** - Complete guide for building workflows in n8n
+- **[n8n Quick Start](./n8n-quickstart.md)** - Get running in 30 minutes
+- **[Workflow Templates](./n8n-workflows/)** - Ready-to-import n8n workflows
+
 ## 🔧 Technical Stack
 
 ### AI Agents
