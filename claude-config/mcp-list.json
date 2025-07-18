@@ -1,0 +1,94 @@
+{
+  "mcps": [
+    {
+      "name": "postgres-prod",
+      "type": "@modelcontextprotocol/server-postgres",
+      "description": "Read-only access to production PostgreSQL database",
+      "config": {
+        "connectionString": "${POSTGRES_PROD_CONNECTION_STRING}",
+        "readOnly": true,
+        "schemas": ["public"],
+        "tables": {
+          "allow": ["*"],
+          "deny": ["secrets", "api_keys", "credentials"]
+        }
+      }
+    },
+    {
+      "name": "betterstack-logs",
+      "type": "@modelcontextprotocol/server-betterstack",
+      "description": "Access to Betterstack logs for debugging",
+      "config": {
+        "apiKey": "${BETTERSTACK_API_KEY}",
+        "sourceToken": "${BETTERSTACK_SOURCE_TOKEN}",
+        "timeframe": "24h",
+        "maxResults": 1000
+      }
+    },
+    {
+      "name": "sentry-errors",
+      "type": "@modelcontextprotocol/server-sentry",
+      "description": "Access to Sentry error tracking and session replays",
+      "config": {
+        "authToken": "${SENTRY_AUTH_TOKEN}",
+        "organization": "blaze-xyz",
+        "project": ["spark", "app", "cinder"],
+        "features": ["errors", "sessions", "replays"]
+      }
+    },
+    {
+      "name": "posthog-analytics",
+      "type": "@modelcontextprotocol/server-posthog",
+      "description": "Access to PostHog analytics and screen recordings",
+      "config": {
+        "apiKey": "${POSTHOG_API_KEY}",
+        "projectId": "${POSTHOG_PROJECT_ID}",
+        "features": ["events", "recordings", "insights"]
+      }
+    },
+    {
+      "name": "clickup-tasks",
+      "type": "@modelcontextprotocol/server-clickup",
+      "description": "Create and manage tasks in ClickUp",
+      "config": {
+        "apiKey": "${CLICKUP_API_KEY}",
+        "workspaceId": "${CLICKUP_WORKSPACE_ID}",
+        "permissions": ["create_task", "update_task", "read_task"],
+        "defaultList": "Squash Bugs"
+      }
+    },
+    {
+      "name": "github-repos",
+      "type": "@modelcontextprotocol/server-github",
+      "description": "Access to Blaze GitHub repositories",
+      "config": {
+        "token": "${GITHUB_TOKEN}",
+        "owner": "blaze-xyz",
+        "repos": ["blaze-platform", "spark", "app", "cinder", "kindling"],
+        "permissions": ["read", "write", "pr"]
+      }
+    },
+    {
+      "name": "slack-notifications",
+      "type": "@modelcontextprotocol/server-slack",
+      "description": "Send notifications and interact with Slack",
+      "config": {
+        "botToken": "${SLACK_BOT_TOKEN}",
+        "signingSecret": "${SLACK_SIGNING_SECRET}",
+        "channels": ["#eng-bugs", "#eng-general", "#alerts"],
+        "permissions": ["chat:write", "commands", "interactive"]
+      }
+    },
+    {
+      "name": "filesystem-local",
+      "type": "@modelcontextprotocol/server-filesystem",
+      "description": "Access to local filesystem for code reading/writing",
+      "config": {
+        "rootPath": "/Users/luc/Projects/blaze",
+        "allowedPaths": ["docs/", "scripts/", "src/"],
+        "deniedPaths": [".env", ".git", "node_modules"],
+        "permissions": ["read", "write"]
+      }
+    }
+  ]
+}
