@@ -4,3 +4,4 @@
 .nx/workspace-data
 .envrc
 .env*
+.DS_Store
