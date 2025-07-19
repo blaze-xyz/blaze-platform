@@ -1,0 +1,334 @@
+{
+  "name": "Bug Investigation Workflow - Blaze",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8c0e7556-e2cb-478e-9a96-918b4c4861aa",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "events": ["slash_command"],
+        "command": "/bug-report"
+      },
+      "id": "a3d12fae-1234-4567-89ab-cdef12345678",
+      "name": "Slack Bug Report",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [240, 500],
+      "webhookId": "slack-bug-report",
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse the bug report from Slack\nconst bugReport = {\n  id: crypto.randomUUID(),\n  reporter: $input.first().json.user_name,\n  reporterEmail: $input.first().json.user.email,\n  channel: $input.first().json.channel_id,\n  description: $input.first().json.text,\n  timestamp: new Date().toISOString(),\n  status: 'investigating'\n};\n\n// Extract potential keywords for searching\nconst keywords = bugReport.description\n  .toLowerCase()\n  .match(/\\b\\w+\\b/g)\n  .filter(word => word.length > 3);\n\nbugReport.searchKeywords = keywords;\n\nreturn [{ json: bugReport }];"
+      },
+      "id": "b4e23456-2345-5678-9abc-def123456789",
+      "name": "Parse Bug Report",
+      "type": "n8n-nodes-base.functionItem",
+      "typeVersion": 1,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Find recent errors related to the bug description\nSELECT \n  e.id,\n  e.user_id,\n  e.error_message,\n  e.stack_trace,\n  e.created_at,\n  u.email as user_email,\n  COUNT(*) OVER (PARTITION BY e.error_message) as occurrence_count\nFROM errors e\nLEFT JOIN users u ON e.user_id = u.id\nWHERE e.created_at > NOW() - INTERVAL '24 hours'\n  AND (\n    e.error_message ILIKE '%{{ $json.searchKeywords[0] }}%'\n    OR e.stack_trace ILIKE '%{{ $json.searchKeywords[0] }}%'\n  )\nORDER BY e.created_at DESC\nLIMIT 50;",
+        "options": {}
+      },
+      "id": "c5f34567-3456-6789-abcd-ef1234567890",
+      "name": "Query Production DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "Production DB Read-Only"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "sentryApi",
+        "method": "GET",
+        "url": "=https://sentry.io/api/0/projects/blaze-xyz/{{ $env.SENTRY_PROJECT }}/events/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $node['Parse Bug Report'].json.searchKeywords[0] }}"
+            },
+            {
+              "name": "statsPeriod",
+              "value": "24h"
+            },
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d6745678-4567-789a-bcde-f12345678901",
+      "name": "Search Sentry Errors",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 600],
+      "credentials": {
+        "sentryApi": {
+          "id": "3",
+          "name": "Sentry API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.apiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-3-opus-20240229"
+            },
+            {
+              "name": "max_tokens",
+              "value": "4000"
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"You are a bug investigation specialist. Analyze the following bug report and data to provide a comprehensive investigation.\\n\\nBug Report:\\n{{ $node['Parse Bug Report'].json.description }}\\n\\nDatabase Errors Found:\\n{{ JSON.stringify($node['Query Production DB'].json, null, 2) }}\\n\\nSentry Errors:\\n{{ JSON.stringify($node['Search Sentry Errors'].json, null, 2) }}\\n\\nPlease provide:\\n1. Root cause analysis\\n2. Affected users count and impact assessment\\n3. Priority (Urgent/High/Normal/Low) with justification\\n4. Suggested fix approach\\n5. Estimated time to fix\\n\\nFormat your response as JSON.\"}]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e7856789-5678-89ab-cdef-123456789012",
+      "name": "Claude Investigation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4",
+          "name": "Claude API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse Claude's response\nconst claudeResponse = JSON.parse($input.first().json.content[0].text);\n\n// Combine all investigation data\nconst investigation = {\n  ...claudeResponse,\n  bugReportId: $node['Parse Bug Report'].json.id,\n  databaseFindings: $node['Query Production DB'].json,\n  sentryFindings: $node['Search Sentry Errors'].json,\n  investigationTimestamp: new Date().toISOString()\n};\n\n// Determine ClickUp priority based on Claude's assessment\nconst clickupPriority = {\n  'Urgent': 1,\n  'High': 2,\n  'Normal': 3,\n  'Low': 4\n}[investigation.priority] || 3;\n\ninvestigation.clickupPriority = clickupPriority;\n\nreturn [{ json: investigation }];"
+      },
+      "id": "f8967890-6789-90ab-def1-234567890123",
+      "name": "Process Investigation",
+      "type": "n8n-nodes-base.functionItem",
+      "typeVersion": 1,
+      "position": [1120, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.clickup.com/api/v2/list/{{ $env.CLICKUP_BUG_LIST_ID }}/task",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $credentials.apiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "=[BUG] {{ $json.rootCause.substring(0, 100) }}"
+            },
+            {
+              "name": "description",
+              "value": "=## Bug Report\\n**Reporter**: {{ $node['Parse Bug Report'].json.reporter }}\\n**Reported at**: {{ $node['Parse Bug Report'].json.timestamp }}\\n\\n## Description\\n{{ $node['Parse Bug Report'].json.description }}\\n\\n## Investigation Results\\n### Root Cause\\n{{ $json.rootCause }}\\n\\n### Impact Assessment\\n{{ $json.impactAssessment }}\\n\\n### Affected Users\\n{{ $json.affectedUsers }}\\n\\n### Suggested Fix\\n{{ $json.suggestedFix }}\\n\\n### Database Findings\\n```json\\n{{ JSON.stringify($json.databaseFindings, null, 2) }}\\n```\\n\\n### Sentry Errors\\n```json\\n{{ JSON.stringify($json.sentryFindings, null, 2) }}\\n```"
+            },
+            {
+              "name": "priority",
+              "value": "={{ $json.clickupPriority }}"
+            },
+            {
+              "name": "status",
+              "value": "ready for fix"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1a234567-7890-0abc-def1-234567890abc",
+      "name": "Create ClickUp Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5",
+          "name": "ClickUp API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "={{ $node['Parse Bug Report'].json.channel }}",
+        "text": "=✅ Bug investigation complete!\\n\\n*Summary*: {{ $node['Process Investigation'].json.rootCause }}\\n*Priority*: {{ $node['Process Investigation'].json.priority }}\\n*Affected Users*: {{ $node['Process Investigation'].json.affectedUsers }}\\n\\n*ClickUp Ticket*: <{{ $json.url }}|View Ticket>\\n\\n*Next Steps*: Our solution agent will begin working on a fix.",
+        "options": {
+          "thread_ts": "={{ $node['Slack Bug Report'].json.ts }}"
+        }
+      },
+      "id": "2b345678-8901-1bcd-ef23-45678901bcde",
+      "name": "Notify Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1560, 500],
+      "credentials": {
+        "slackApi": {
+          "id": "1",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $env.SOLUTION_WORKFLOW_ID }}",
+        "workflowData": "={{ JSON.stringify({ ticketId: $node['Create ClickUp Ticket'].json.id, ticketUrl: $node['Create ClickUp Ticket'].json.url, investigation: $node['Process Investigation'].json, bugReport: $node['Parse Bug Report'].json }) }}"
+      },
+      "id": "3c456789-9012-2cde-f345-67890123cdef",
+      "name": "Trigger Solution Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1780, 500]
+    }
+  ],
+  "connections": {
+    "Slack Bug Report": {
+      "main": [
+        [
+          {
+            "node": "Parse Bug Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Bug Report": {
+      "main": [
+        [
+          {
+            "node": "Query Production DB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Sentry Errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Production DB": {
+      "main": [
+        [
+          {
+            "node": "Claude Investigation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Sentry Errors": {
+      "main": [
+        [
+          {
+            "node": "Claude Investigation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Investigation": {
+      "main": [
+        [
+          {
+            "node": "Process Investigation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Investigation": {
+      "main": [
+        [
+          {
+            "node": "Create ClickUp Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ClickUp Ticket": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trigger Solution Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateId": "bug-investigation-blaze"
+  },
+  "pinData": {}
+}
