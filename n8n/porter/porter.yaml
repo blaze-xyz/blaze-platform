@@ -1,0 +1,39 @@
+version: v2
+name: n8n
+
+build:
+  method: docker
+  context: .
+  dockerfile: Dockerfile
+
+services:
+  - name: n8n
+    type: web
+    run: n8n start
+    instances: 1
+    cpuCores: 2
+    ramMegabytes: 2048
+    port: 5678
+    env:
+      fromGroup: n8n
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_HOST: "0.0.0.0"
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: "https"
+      WEBHOOK_URL: "https://n8n.porterapp.com"
+      N8N_EDITOR_BASE_URL: "https://n8n.porterapp.com"
+      DB_TYPE: "postgresdb"
+      DB_POSTGRESDB_HOST: "{{ .POSTGRES_HOST }}"
+      DB_POSTGRESDB_PORT: "{{ .POSTGRES_PORT }}"
+      DB_POSTGRESDB_DATABASE: "{{ .POSTGRES_DATABASE }}"
+      DB_POSTGRESDB_USER: "{{ .POSTGRES_USER }}"
+      DB_POSTGRESDB_PASSWORD: "{{ .POSTGRES_PASSWORD }}"
+
+addons:
+  - name: postgres
+    type: postgres
+    config:
+      cpuCores: 1
+      ramMegabytes: 1024
+      storageGigabytes: 20
