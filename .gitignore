@@ -62,3 +62,7 @@ Thumbs.db
 
 # Log files created by default by the nohup command
 nohup.out
+
+# Environment files
+.envrc
+.env*
