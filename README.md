@@ -145,6 +145,83 @@ cd cinder && yarn && yarn dev
 cd website && yarn && yarn dev
 ```
 
+## 🔄 Submodule Synchronization
+
+This monorepo uses git submodules to manage individual projects. We provide convenient scripts to keep everything in sync with GitHub.
+
+### Using NPM/Yarn Scripts
+```bash
+# Pull latest changes and update all submodules
+yarn sync
+
+# Push all changes (submodules first, then parent)
+yarn sync:push
+
+# Check status of all submodules
+yarn sync:status
+
+# Full sync cycle: pull, update, commit, and push
+yarn sync:full
+
+# Other useful commands
+yarn sync:update    # Initialize/update submodules
+yarn sync:fetch     # Fetch changes without merging
+yarn sync:checkout  # Checkout main/master in all submodules
+yarn sync:pull      # Pull in all submodules
+```
+
+### Using the Sync Shell Script
+For more control and safety features, use the provided shell script:
+
+```bash
+# Basic sync (pull + update)
+./scripts/sync.sh
+
+# Push all changes
+./scripts/sync.sh push
+
+# Show detailed status
+./scripts/sync.sh status
+
+# Full sync with auto-commit
+./scripts/sync.sh full
+
+# Show help
+./scripts/sync.sh help
+```
+
+The shell script includes:
+- ✅ Automatic stashing of uncommitted changes
+- ✅ Safety checks before operations
+- ✅ Colored output for better visibility
+- ✅ Detailed status reporting
+
+### Common Workflows
+
+**Daily sync routine:**
+```bash
+# Start your day by syncing everything
+yarn sync
+```
+
+**After making changes:**
+```bash
+# Commit your changes in submodules first
+cd spark && git add . && git commit -m "Your changes"
+cd ..
+
+# Then sync everything to GitHub
+yarn sync:push
+```
+
+**Quick full sync:**
+```bash
+# One command to sync everything
+yarn sync:full
+# or
+./scripts/sync.sh full
+```
+
 ## 🔧 Development with Nx
 
 This monorepo uses [Nx](https://nx.dev) for enhanced development experience:

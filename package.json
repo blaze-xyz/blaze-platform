@@ -1,0 +1,45 @@
+{
+  "name": "blaze-platform",
+  "version": "1.0.0",
+  "description": "Blaze Platform Monorepo - Complete financial technology stack for global payments",
+  "private": true,
+  "workspaces": [
+    "spark",
+    "app",
+    "cinder",
+    "website",
+    "kindling",
+    "deploy-notes-action",
+    "dlocal-signature"
+  ],
+  "scripts": {
+    "sync": "git pull --recurse-submodules && git submodule update --remote --merge",
+    "sync:push": "git submodule foreach 'git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)' && git push --recurse-submodules=on-demand",
+    "sync:status": "git submodule status --recursive",
+    "sync:update": "git submodule update --init --recursive",
+    "sync:fetch": "git fetch --recurse-submodules",
+    "sync:checkout": "git submodule foreach 'git checkout main || git checkout master'",
+    "sync:pull": "git submodule foreach 'git pull origin $(git rev-parse --abbrev-ref HEAD)'",
+    "sync:commit": "git add . && git commit -m 'Update submodules' && npm run sync:push",
+    "sync:full": "npm run sync && npm run sync:commit",
+    "dev:all": "echo 'Starting all services...' && cd spark && yarn start:dev & cd ../app && yarn start & cd ../cinder && yarn dev & cd ../website && yarn dev",
+    "install:all": "git submodule foreach 'yarn install'",
+    "build:all": "npx nx run-many -t build",
+    "test:all": "npx nx run-many -t test",
+    "lint:all": "npx nx run-many -t lint"
+  },
+  "devDependencies": {
+    "nx": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:blaze-xyz/blaze-platform.git"
+  },
+  "author": "Blaze Team",
+  "license": "UNLICENSED",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
