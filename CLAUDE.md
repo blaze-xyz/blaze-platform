@@ -22,31 +22,88 @@ The monorepo consists of these key projects:
 
 **Always use git worktrees when working on new features or issues.** This ensures clean separation between different development tasks and prevents branch conflicts when working on multiple issues simultaneously.
 
-Worktrees should be created at the submodule level in each project's dedicated `worktrees/` folder to keep the workspace organized and avoid conflicts.
+### Important: Worktree Location Strategy
+
+**Worktrees should be created as sibling directories to the main blaze repository**, using the `../` pattern. This approach:
+- Provides complete separation from the main repository
+- Makes it easier for IDEs and Claude Code to work with isolated contexts
+- Prevents any conflicts or confusion with the main repository structure
+- Allows multiple worktrees to exist independently without cluttering the main repo
 
 ### Worktree Commands
 
 ```bash
-# Create a new worktree for a feature/issue in the specific project's worktrees folder
-cd spark  # or app, cinder, website, etc.
-git worktree add worktrees/feature-name feature/branch-name
+# Create a new worktree as a sibling directory to blaze
+git worktree add ../feature-name feature/branch-name
 
-# List existing worktrees
+# Examples:
+git worktree add ../fix-payment-bug fix/payment-processing
+git worktree add ../virtual-accounts feat/virtual-accounts
+git worktree add ../update-ui feat/new-dashboard
+
+# List all worktrees
 git worktree list
 
 # Remove a worktree when work is complete
-git worktree remove worktrees/feature-name
+git worktree remove ../feature-name
 git worktree prune
+```
+
+### Example Directory Structure
+
+```
+Projects/
+├── blaze/                      # Main repository
+│   ├── spark/
+│   ├── app/
+│   ├── cinder/
+│   └── website/
+├── fix-payment-bug/            # Worktree for payment bug fix
+│   ├── spark/
+│   ├── app/
+│   ├── cinder/
+│   └── website/
+├── virtual-accounts/           # Worktree for virtual accounts feature
+│   ├── spark/
+│   ├── app/
+│   ├── cinder/
+│   └── website/
+└── update-ui/                  # Worktree for UI updates
+    ├── spark/
+    ├── app/
+    ├── cinder/
+    └── website/
+```
+
+### Working with Submodules in Worktrees
+
+When you create a worktree at the parent level, remember that submodules need to be initialized:
+
+```bash
+# After creating a worktree
+cd ../feature-name
+
+# Initialize and update submodules
+git submodule update --init --recursive
+
+# Navigate to the specific submodule you want to work on
+cd spark  # or app, cinder, website, etc.
+
+# Create and checkout your feature branch in the submodule
+git checkout -b feature/your-feature
 ```
 
 ### Workflow Pattern
 
-1. **Start new work**: Create a worktree in the relevant submodule for each new feature/issue
-2. **Develop**: Work in the isolated worktree directory within the specific project
-3. **Complete**: Merge/submit PR from the worktree
-4. **Cleanup**: Delete the worktree once work is finished
+1. **Create worktree**: From the main blaze directory, create a sibling worktree using `../worktree-name`
+2. **Initialize submodules**: Run `git submodule update --init --recursive` in the new worktree
+3. **Navigate to submodule**: Go to the specific project you're working on (spark, app, etc.)
+4. **Create feature branch**: Checkout your feature branch within the submodule
+5. **Develop**: Work in the completely isolated worktree environment
+6. **Complete**: Merge/submit PR from the worktree
+7. **Cleanup**: Remove the worktree and prune references when done
 
-This allows multiple Claude Code instances to work on different issues simultaneously without branch conflicts, with each worktree isolated to its specific project.
+This allows multiple Claude Code instances or IDEs to work on different issues simultaneously without any conflicts, with each worktree completely isolated as a sibling directory.
 
 ## Common Commands
 
